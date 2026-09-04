@@ -39,17 +39,19 @@ test("redirects the root route to the bear map editor", async () => {
   assert.equal(new URL(response.headers.get("location")).pathname, "/map");
 });
 
-test("uses large text-only tool navigation", async () => {
-  const [layoutSource, globalStyles] = await Promise.all([
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+test("uses an active, text-only segmented tool navigation", async () => {
+  const [navigationSource, globalStyles] = await Promise.all([
+    readFile(new URL("../app/tool-navigation.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
-  assert.match(layoutSource, /href="\/map">熊坑地图/);
-  assert.match(layoutSource, /href="\/rally">集结计时/);
-  assert.doesNotMatch(layoutSource, /suite-brand|<img/);
-  assert.match(globalStyles, /\.suite-links a[\s\S]*min-height: 48px/);
-  assert.match(globalStyles, /font-size: 16px/);
+  assert.match(navigationSource, /href: "\/map"/);
+  assert.match(navigationSource, /href: "\/rally"/);
+  assert.match(navigationSource, /usePathname/);
+  assert.match(navigationSource, /aria-current=\{active \? "page" : undefined\}/);
+  assert.doesNotMatch(navigationSource, /<img|logo\.jpg/);
+  assert.match(globalStyles, /border-radius: 14px/);
+  assert.match(globalStyles, /\.suite-link\.is-active/);
 });
 
 test("renders the WJDR rally timer shell", async () => {

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import "./globals.css";
+import ToolNavigation from "./tool-navigation";
 
 export const metadata: Metadata = {
   title: {
@@ -31,12 +31,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <nav className="suite-nav" aria-label="WJDR 工具导航">
-          <div className="suite-links">
-            <Link href="/map">熊坑地图</Link>
-            <Link href="/rally">集结计时</Link>
-          </div>
-        </nav>
+        <ToolNavigation />
         {children}
       </body>
     </html>
