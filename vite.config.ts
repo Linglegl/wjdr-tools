@@ -44,6 +44,7 @@ export default defineConfig(async ({ mode }) => {
     new Set([
       "localhost",
       "rally.burgerl.com",
+      "map.burgerl.com",
       ...(env.ALLOWED_HOSTS ?? "")
         .split(",")
         .map((host) => host.trim())

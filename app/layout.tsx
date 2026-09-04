@@ -1,11 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "同抵集结计时器 | WJDR",
+  title: {
+    default: "WJDR 联盟工具",
+    template: "%s | WJDR",
+  },
   description:
-    "为无尽冬日多队集结反推发车时刻，提供出发前与发出时语音提醒，确保所有集结同时到达。",
-  applicationName: "WJDR 同抵集结计时器",
+    "无尽冬日联盟作战工具，集成同抵集结计时器与熊坑地图编辑器。",
+  applicationName: "WJDR 联盟工具",
   icons: {
     icon: "/logo.jpg",
     shortcut: "/logo.jpg",
@@ -26,7 +30,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        <nav className="suite-nav" aria-label="WJDR 工具导航">
+          <Link className="suite-brand" href="/">
+            <img src="/logo.jpg" alt="" />
+            <span>WJDR 联盟工具</span>
+          </Link>
+          <div className="suite-links">
+            <Link href="/rally">集结计时</Link>
+            <Link href="/map">熊坑地图</Link>
+          </div>
+        </nav>
+        {children}
+      </body>
     </html>
   );
 }
