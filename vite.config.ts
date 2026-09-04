@@ -45,6 +45,7 @@ export default defineConfig(async ({ mode }) => {
       "localhost",
       "rally.burgerl.com",
       "map.burgerl.com",
+      "tools.burgerl.com",
       ...(env.ALLOWED_HOSTS ?? "")
         .split(",")
         .map((host) => host.trim())

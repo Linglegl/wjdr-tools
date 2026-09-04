@@ -32,13 +32,9 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body>
         <nav className="suite-nav" aria-label="WJDR 工具导航">
-          <Link className="suite-brand" href="/">
-            <img src="/logo.jpg" alt="" />
-            <span>WJDR 联盟工具</span>
-          </Link>
           <div className="suite-links">
-            <Link href="/rally">集结计时</Link>
             <Link href="/map">熊坑地图</Link>
+            <Link href="/rally">集结计时</Link>
           </div>
         </nav>
         {children}

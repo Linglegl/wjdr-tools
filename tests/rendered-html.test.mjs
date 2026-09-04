@@ -33,17 +33,23 @@ async function render(path = "/") {
   );
 }
 
-test("renders the unified WJDR tools hub", async () => {
+test("redirects the root route to the bear map editor", async () => {
   const response = await render();
-  assert.equal(response.status, 200);
-  const html = (await response.text()).replaceAll("<!-- -->", "");
+  assert.equal(response.status, 307);
+  assert.equal(new URL(response.headers.get("location")).pathname, "/map");
+});
 
-  assert.match(html, /WJDR 联盟工具/);
-  assert.match(html, /选择本次作战工具/);
-  assert.match(html, /href="\/rally"/);
-  assert.match(html, /href="\/map"/);
-  assert.match(html, /同抵集结计时器/);
-  assert.match(html, /熊坑地图编辑器/);
+test("uses large text-only tool navigation", async () => {
+  const [layoutSource, globalStyles] = await Promise.all([
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(layoutSource, /href="\/map">熊坑地图/);
+  assert.match(layoutSource, /href="\/rally">集结计时/);
+  assert.doesNotMatch(layoutSource, /suite-brand|<img/);
+  assert.match(globalStyles, /\.suite-links a[\s\S]*min-height: 48px/);
+  assert.match(globalStyles, /font-size: 16px/);
 });
 
 test("renders the WJDR rally timer shell", async () => {
@@ -166,5 +172,6 @@ test("startup scripts bind all interfaces and support allowed domain hosts", asy
   assert.match(viteSource, /allowedHosts/);
   assert.match(viteSource, /"rally\.burgerl\.com"/);
   assert.match(viteSource, /"map\.burgerl\.com"/);
+  assert.match(viteSource, /"tools\.burgerl\.com"/);
   assert.match(envExample, /^ALLOWED_HOSTS=/m);
 });

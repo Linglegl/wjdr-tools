@@ -4,7 +4,7 @@
 
 ## 页面入口
 
-- `/`：工具选择首页
+- `/`：默认跳转到熊坑地图编辑器
 - `/rally`：同抵集结计时器
 - `/map`：熊坑地图编辑器
 
@@ -41,7 +41,7 @@ http://localhost:3000
 复制 `.env.example` 为 `.env.local`，填写允许访问服务的域名：
 
 ```dotenv
-ALLOWED_HOSTS=rally.burgerl.com,map.burgerl.com
+ALLOWED_HOSTS=rally.burgerl.com,map.burgerl.com,tools.burgerl.com
 ```
 
 多个域名使用英文逗号分隔，只填写主机名，不要包含协议或端口。将域名的 DNS
@@ -50,6 +50,7 @@ ALLOWED_HOSTS=rally.burgerl.com,map.burgerl.com
 ```text
 http://rally.burgerl.com:3000/rally
 http://map.burgerl.com:3000/map
+http://tools.burgerl.com:3000
 ```
 
 如需使用标准的 `80/443` 端口和 HTTPS，请使用 Nginx 或 Caddy 将域名反向代理到
