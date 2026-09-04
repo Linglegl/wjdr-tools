@@ -321,6 +321,7 @@ export default function Home() {
   const [transferText, setTransferText] = useState("");
   const [toast, setToast] = useState("");
   const [hydrated, setHydrated] = useState(false);
+  const [nativeDragEnabled, setNativeDragEnabled] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<{
     x: number;
@@ -984,6 +985,14 @@ export default function Home() {
   }, [hydrated, templates]);
 
   useEffect(() => {
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    // Native HTML dragging can swallow taps on touch screens, so only enable it
+    // for mouse-like pointers. Mobile users can still select and edit markers.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNativeDragEnabled(finePointer.matches);
+  }, []);
+
+  useEffect(() => {
     const viewport = mapViewportRef.current;
     if (!viewport) return;
     const frame = window.requestAnimationFrame(() => {
@@ -1311,7 +1320,11 @@ export default function Home() {
                   <button
                     key={marker.id}
                     type="button"
-                    draggable={tool === "select" && marker.type !== "bear"}
+                    draggable={
+                      nativeDragEnabled &&
+                      tool === "select" &&
+                      marker.type !== "bear"
+                    }
                     className={`marker marker-${marker.type} ${
                       selectedId === marker.id ? "selected" : ""
                     } ${draggingId === marker.id ? "dragging" : ""}`}

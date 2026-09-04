@@ -410,9 +410,11 @@ button:disabled {
 .map-viewport {
   min-width: 0;
   overflow: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   scrollbar-color: #314554 #09121b;
   scrollbar-width: thin;
+  touch-action: pan-x pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
 }
 
 .map-stage {
@@ -618,6 +620,7 @@ button:disabled {
   border: 1px solid #3d5261;
   background: #13222d;
   cursor: grab;
+  touch-action: manipulation;
   transform-origin: center;
   transition:
     border-color 120ms ease,
