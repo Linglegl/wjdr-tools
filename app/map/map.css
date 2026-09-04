@@ -1217,6 +1217,24 @@ footer p span {
   width: min(520px, 100%);
 }
 
+.image-export-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-left: 2px solid rgba(112, 214, 163, 0.72);
+  background: rgba(112, 214, 163, 0.055);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.image-export-note span:first-child {
+  color: #b9ead3;
+  font-weight: 700;
+}
+
 .image-view-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

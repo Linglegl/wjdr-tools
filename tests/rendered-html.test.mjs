@@ -121,7 +121,10 @@ test("keeps voice alerts concise and completes launched rallies", async () => {
 });
 
 test("renders the bear map editor with its complete tool surface", async () => {
-  const response = await render("/map");
+  const [response, source] = await Promise.all([
+    render("/map"),
+    readFile(new URL("../app/map/page.tsx", import.meta.url), "utf8"),
+  ]);
   assert.equal(response.status, 200);
   const html = (await response.text()).replaceAll("<!-- -->", "");
 
@@ -129,6 +132,8 @@ test("renders the bear map editor with its complete tool surface", async () => {
   assert.match(html, /地图工具/);
   assert.match(html, /生成图片/);
   assert.match(html, /导入图片/);
+  assert.match(source, /导出的原始PNG文件可导入重新编辑/);
+  assert.match(source, /微信、QQ 传输或压缩后可能无法使用/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
 });
 

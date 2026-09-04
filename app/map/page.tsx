@@ -1714,6 +1714,10 @@ export default function Home() {
                 ×
               </button>
             </div>
+            <p className="image-export-note">
+              <span>导出的原始PNG文件可导入重新编辑</span>
+              <span>微信、QQ 传输或压缩后可能无法使用</span>
+            </p>
             <div className="image-view-grid">
               <button type="button" onClick={() => downloadImage("vertical")}>
                 <strong>垂直视角</strong>
