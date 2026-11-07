@@ -140,7 +140,7 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(styles, /overscroll-behavior: auto/);
   assert.match(styles, /touch-action: pan-x pan-y pinch-zoom/);
   assert.match(styles, /\.marker[\s\S]*?touch-action: manipulation/);
-  assert.match(source, /const TILT_SCALE = 1 \/ Math\.SQRT2/);
+  assert.doesNotMatch(source, /TILT_SCALE|TILT_INSET_PERCENT|--tilt-inset/);
   assert.match(source, /const footerTop = contentSize/);
   assert.match(source, /fitCanvasLines/);
   assert.match(source, /markerScreenCenter/);
@@ -149,7 +149,8 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.doesNotMatch(source, /mapZoom|ZOOM_MIN|ZOOM_MAX|ZOOM_STEP/);
   assert.doesNotMatch(source, /地图缩放|放大地图|缩小地图/);
   assert.doesNotMatch(styles, /zoom-controls/);
-  assert.match(styles, /width: calc\(100% - var\(--tilt-inset\)/);
+  assert.match(styles, /\.map-stage\.tilted \.map-board[\s\S]*?width: 100%/);
+  assert.doesNotMatch(styles, /--tilt-inset|scale\(var\(--tilt-scale\)\)/);
   assert.doesNotMatch(styles, /translateZ\(|backface-visibility/);
   assert.doesNotMatch(source, /output\.scale\(0\.88/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);

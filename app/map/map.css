@@ -410,7 +410,6 @@ button:disabled {
 }
 
 .map-stage.tilted {
-  width: var(--map-stage-width, min(96vh, calc(100% - 12px)));
   aspect-ratio: 1;
   place-items: center;
   margin: 18px auto 14px;
@@ -444,7 +443,7 @@ button:disabled {
 }
 
 .map-stage.tilted .map-board {
-  width: calc(100% - var(--tilt-inset) - var(--tilt-inset));
+  width: 100%;
   height: auto;
   aspect-ratio: 1;
   box-shadow:
@@ -484,15 +483,15 @@ button:disabled {
 }
 
 .map-stage.tilted .axis-x {
-  top: calc(var(--tilt-inset) - 16px);
-  left: var(--tilt-inset);
-  width: calc(100% - var(--tilt-inset) - var(--tilt-inset));
+  top: -16px;
+  left: 0;
+  width: 100%;
 }
 
 .map-stage.tilted .axis-y {
-  top: var(--tilt-inset);
-  left: calc(var(--tilt-inset) - 18px);
-  height: calc(100% - var(--tilt-inset) - var(--tilt-inset));
+  top: 0;
+  left: -18px;
+  height: 100%;
 }
 
 .board-corner {
@@ -1440,7 +1439,6 @@ footer p span {
   }
 
   .map-stage.tilted {
-    width: calc(100% - 12px);
     margin: 10px auto;
     padding: 0;
   }

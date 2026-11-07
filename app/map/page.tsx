@@ -51,8 +51,6 @@ const MARKER_TYPES: MarkerType[] = ["bear", "town", "flag", "mine"];
 const FLAG_RANGE = 3;
 const TILT_YAW_DEGREES = -45;
 const TILT_COUNTER_YAW_DEGREES = -TILT_YAW_DEGREES;
-const TILT_SCALE = 1 / Math.SQRT2;
-const TILT_INSET_PERCENT = (1 - TILT_SCALE) * 50;
 const EXPORT_BOARD_SIZE = 1200;
 const EXPORT_AXIS_GUTTER = 44;
 const EXPORT_FOOTER_HEIGHT = 108;
@@ -1294,7 +1292,6 @@ export default function Home() {
                 {
                   "--tilt-yaw": `${TILT_YAW_DEGREES}deg`,
                   "--tilt-counter-yaw": `${TILT_COUNTER_YAW_DEGREES}deg`,
-                  "--tilt-inset": `${TILT_INSET_PERCENT}%`,
                 } as React.CSSProperties
               }
             >
