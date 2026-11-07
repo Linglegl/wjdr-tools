@@ -140,6 +140,13 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(styles, /overscroll-behavior: auto/);
   assert.match(styles, /touch-action: pan-x pan-y pinch-zoom/);
   assert.match(styles, /\.marker[\s\S]*?touch-action: manipulation/);
+  assert.match(source, /const TILT_SCALE = 1 \/ Math\.SQRT2/);
+  assert.match(source, /const footerTop = contentSize/);
+  assert.match(source, /fitCanvasLines/);
+  assert.match(source, /markerScreenCenter/);
+  assert.match(styles, /width: calc\(100% - var\(--tilt-inset\)/);
+  assert.doesNotMatch(styles, /translateZ\(|backface-visibility/);
+  assert.doesNotMatch(source, /output\.scale\(0\.88/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
 });
 

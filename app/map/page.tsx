@@ -51,8 +51,13 @@ const MARKER_TYPES: MarkerType[] = ["bear", "town", "flag", "mine"];
 const FLAG_RANGE = 3;
 const TILT_YAW_DEGREES = -45;
 const TILT_COUNTER_YAW_DEGREES = -TILT_YAW_DEGREES;
-const TILT_SCALE = 0.7;
+const TILT_SCALE = 1 / Math.SQRT2;
 const TILT_INSET_PERCENT = (1 - TILT_SCALE) * 50;
+const EXPORT_BOARD_SIZE = 1200;
+const EXPORT_AXIS_GUTTER = 44;
+const EXPORT_FOOTER_HEIGHT = 108;
+const EXPORT_FONT_FAMILY =
+  '"Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
 const ZOOM_MIN = 0.7;
 const ZOOM_MAX = 1.6;
 const ZOOM_STEP = 0.1;
@@ -222,6 +227,61 @@ function drawFlagIcon(
   ctx.moveTo(poleX - size * 0.16, bottom);
   ctx.lineTo(poleX + size * 0.16, bottom);
   ctx.stroke();
+  ctx.restore();
+}
+
+function fitCanvasLines(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxLines = 2,
+) {
+  const lines: string[] = [];
+  let current = "";
+
+  for (const character of Array.from(text.trim())) {
+    const candidate = `${current}${character}`;
+    if (current && ctx.measureText(candidate).width > maxWidth) {
+      lines.push(current);
+      current = character;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+  if (!lines.length) return [""];
+  if (lines.length <= maxLines) return lines;
+
+  const visible = lines.slice(0, maxLines);
+  let lastLine = visible[maxLines - 1];
+  while (lastLine && ctx.measureText(`${lastLine}…`).width > maxWidth) {
+    lastLine = lastLine.slice(0, -1);
+  }
+  visible[maxLines - 1] = `${lastLine}…`;
+  return visible;
+}
+
+function drawCenteredMarkerText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  centerX: number,
+  centerY: number,
+  maxWidth: number,
+  fontSize: number,
+) {
+  ctx.save();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `650 ${fontSize}px ${EXPORT_FONT_FAMILY}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0, 0, 0, .86)";
+  ctx.shadowBlur = 4;
+  const lineHeight = fontSize * 1.18;
+  const lines = fitCanvasLines(ctx, text, maxWidth, 2);
+  const firstLineY = centerY - ((lines.length - 1) * lineHeight) / 2;
+  lines.forEach((line, index) => {
+    ctx.fillText(line, centerX, firstLineY + index * lineHeight);
+  });
   ctx.restore();
 }
 
@@ -699,7 +759,7 @@ export default function Home() {
   }
 
   async function downloadImage(view: ImageView) {
-    const boardSize = 1200;
+    const boardSize = EXPORT_BOARD_SIZE;
     const cell = boardSize / GRID_SIZE;
     const boardCanvas = document.createElement("canvas");
     boardCanvas.width = boardSize;
@@ -724,21 +784,6 @@ export default function Home() {
       ctx.lineTo(boardSize, index * cell);
       ctx.stroke();
     }
-
-    ctx.save();
-    ctx.font = "600 12px Arial";
-    ctx.fillStyle = "rgba(183, 202, 215, .72)";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    for (let index = 0; index < GRID_SIZE; index += 1) {
-      ctx.fillText(String(index + 1), (index + 0.5) * cell, 4);
-    }
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    for (let index = 0; index < GRID_SIZE; index += 1) {
-      ctx.fillText(String(index + 1), 4, (index + 0.5) * cell);
-    }
-    ctx.restore();
 
     if (showCoverage) {
       ctx.setLineDash([8, 7]);
@@ -765,61 +810,64 @@ export default function Home() {
         const markerHeight = footprint.height * cell;
         const cx = markerX + markerWidth / 2;
         const cy = markerY + markerHeight / 2;
-        const colors: Record<MarkerType, string> = {
-          bear: "#ff6a32",
-          town: ringColors[marker.ring ?? 1],
-          flag: "#74d7a6",
-          mine: "#f1c56b",
-        };
-        ctx.fillStyle = colors[marker.type];
-        ctx.fillRect(
-          markerX + 4,
-          markerY + 4,
-          markerWidth - 8,
-          markerHeight - 8,
-        );
-        ctx.font = "600 20px Arial";
-        ctx.textAlign = "center";
-        if (marker.type === "flag") {
-          ctx.save();
-          ctx.translate(cx, cy);
-          if (view === "game") ctx.rotate(Math.PI / 4);
-          drawFlagIcon(ctx, 0, 0, Math.min(markerWidth, markerHeight) * 0.72);
-          ctx.restore();
+        const inset = 1;
+        const left = markerX + inset;
+        const top = markerY + inset;
+        const width = markerWidth - inset * 2;
+        const height = markerHeight - inset * 2;
+
+        ctx.save();
+        if (marker.type === "town") {
+          ctx.fillStyle = ringColors[marker.ring ?? 1];
+          ctx.strokeStyle = "#526675";
+        } else if (marker.type === "flag") {
+          ctx.fillStyle = "#10251f";
+          ctx.strokeStyle = "rgba(112, 214, 163, .5)";
         } else if (marker.type === "mine") {
-          ctx.save();
-          ctx.translate(cx, cy);
-          if (view === "game") ctx.rotate(Math.PI / 4);
-          ctx.fillStyle = "#fff0b8";
-          ctx.font = `700 ${Math.round(Math.min(markerWidth, markerHeight) * 0.42)}px "Segoe UI Symbol", Arial`;
-          ctx.textBaseline = "middle";
-          ctx.fillText("⛏", 0, 2);
-          ctx.restore();
-        } else if (marker.type === "bear") {
-          ctx.save();
-          ctx.translate(cx, cy);
-          if (view === "game") ctx.rotate(Math.PI / 4);
-          ctx.fillStyle = "#ff8a5c";
-          ctx.font = "700 34px Arial";
-          ctx.textBaseline = "middle";
-          ctx.fillText("◎", 0, -15);
-          ctx.fillStyle = "#ffffff";
-          ctx.font = "600 20px Arial";
-          ctx.fillText(marker.name, 0, 18);
-          ctx.restore();
+          ctx.fillStyle = "#282214";
+          ctx.strokeStyle = "rgba(240, 196, 109, .54)";
         } else {
-          ctx.save();
-          ctx.translate(cx, cy + 6);
-          if (view === "game") ctx.rotate(Math.PI / 4);
-          ctx.fillStyle = "#ffffff";
-          ctx.fillText(marker.name, 0, 0);
-          ctx.restore();
+          const bearGradient = ctx.createRadialGradient(
+            cx,
+            cy,
+            0,
+            cx,
+            cy,
+            Math.max(markerWidth, markerHeight) * 0.58,
+          );
+          bearGradient.addColorStop(0, "rgba(255, 99, 50, .23)");
+          bearGradient.addColorStop(1, "#261712");
+          ctx.fillStyle = bearGradient;
+          ctx.strokeStyle = "#ff6332";
         }
+        ctx.fillRect(left, top, width, height);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(left, top, width, height);
+
+        if (marker.type === "town" || marker.type === "mine") {
+          ctx.strokeStyle =
+            marker.type === "town"
+              ? "rgba(219, 228, 234, .16)"
+              : "rgba(240, 196, 109, .16)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, top);
+          ctx.lineTo(cx, top + height);
+          ctx.moveTo(left, cy);
+          ctx.lineTo(left + width, cy);
+          ctx.stroke();
+        }
+        ctx.restore();
       });
 
+    const gameContentSize = Math.ceil(
+      boardSize * Math.SQRT2 + EXPORT_AXIS_GUTTER * 2,
+    );
+    const contentSize =
+      view === "game" ? gameContentSize : boardSize + EXPORT_AXIS_GUTTER;
     const canvas = document.createElement("canvas");
-    canvas.width = view === "game" ? 1600 : boardSize;
-    canvas.height = view === "game" ? 1600 : boardSize;
+    canvas.width = contentSize;
+    canvas.height = contentSize + EXPORT_FOOTER_HEIGHT;
     const output = canvas.getContext("2d");
     if (!output) return;
 
@@ -827,46 +875,156 @@ export default function Home() {
       0,
       0,
       canvas.width,
-      canvas.height,
+      contentSize,
     );
     outputGradient.addColorStop(0, "#08121b");
     outputGradient.addColorStop(1, "#111f2b");
     output.fillStyle = outputGradient;
-    output.fillRect(0, 0, canvas.width, canvas.height);
+    output.fillRect(0, 0, canvas.width, contentSize);
+
+    const drawAxes = (
+      axisContext: CanvasRenderingContext2D,
+      boardLeft: number,
+      boardTop: number,
+    ) => {
+      axisContext.save();
+      axisContext.font = `600 12px ${EXPORT_FONT_FAMILY}`;
+      axisContext.fillStyle = "rgba(118, 144, 160, .9)";
+      axisContext.textAlign = "center";
+      axisContext.textBaseline = "middle";
+      for (let index = 0; index < GRID_SIZE; index += 1) {
+        axisContext.fillText(
+          String(index + 1),
+          boardLeft + (index + 0.5) * cell,
+          boardTop - EXPORT_AXIS_GUTTER / 2,
+        );
+      }
+      axisContext.textAlign = "right";
+      for (let index = 0; index < GRID_SIZE; index += 1) {
+        axisContext.fillText(
+          String(index + 1),
+          boardLeft - EXPORT_AXIS_GUTTER / 2,
+          boardTop + (index + 0.5) * cell,
+        );
+      }
+      axisContext.restore();
+    };
 
     if (view === "game") {
       output.save();
-      output.translate(canvas.width / 2, 750);
-      output.scale(0.88, 0.88);
+      output.translate(contentSize / 2, contentSize / 2);
       output.rotate(-Math.PI / 4);
-      output.translate(-boardSize / 2, -boardSize / 2);
-      output.drawImage(boardCanvas, 0, 0);
+      output.drawImage(boardCanvas, -boardSize / 2, -boardSize / 2);
+      drawAxes(output, -boardSize / 2, -boardSize / 2);
       output.restore();
     } else {
-      output.drawImage(boardCanvas, 0, 0);
+      output.drawImage(
+        boardCanvas,
+        EXPORT_AXIS_GUTTER,
+        EXPORT_AXIS_GUTTER,
+      );
+      drawAxes(output, EXPORT_AXIS_GUTTER, EXPORT_AXIS_GUTTER);
     }
 
-    output.fillStyle = "rgba(6, 12, 18, .84)";
-    output.fillRect(0, canvas.height - 90, canvas.width, 90);
+    const markerScreenCenter = (marker: Marker) => {
+      const footprint = FOOTPRINT[marker.type];
+      const boardX = (marker.x + footprint.width / 2) * cell;
+      const boardY = (marker.y + footprint.height / 2) * cell;
+      if (view === "vertical") {
+        return {
+          x: EXPORT_AXIS_GUTTER + boardX,
+          y: EXPORT_AXIS_GUTTER + boardY,
+        };
+      }
+      const offsetX = boardX - boardSize / 2;
+      const offsetY = boardY - boardSize / 2;
+      const cosine = Math.SQRT1_2;
+      const sine = -Math.SQRT1_2;
+      return {
+        x: contentSize / 2 + offsetX * cosine - offsetY * sine,
+        y: contentSize / 2 + offsetX * sine + offsetY * cosine,
+      };
+    };
+
+    markers
+      .filter((marker) => showTowns || marker.type !== "town")
+      .forEach((marker) => {
+        const center = markerScreenCenter(marker);
+        const footprint = FOOTPRINT[marker.type];
+        const markerWidth = footprint.width * cell;
+        const markerHeight = footprint.height * cell;
+        if (marker.type === "flag") {
+          drawFlagIcon(
+            output,
+            center.x,
+            center.y,
+            Math.min(markerWidth, markerHeight) * 0.72,
+          );
+        } else if (marker.type === "mine") {
+          output.save();
+          output.fillStyle = "#ffe39a";
+          output.font = `700 ${Math.round(Math.min(markerWidth, markerHeight) * 0.42)}px "Segoe UI Symbol", Arial, sans-serif`;
+          output.textAlign = "center";
+          output.textBaseline = "middle";
+          output.shadowColor = "rgba(0, 0, 0, .78)";
+          output.shadowBlur = 4;
+          output.fillText("⛏", center.x, center.y + 2);
+          output.restore();
+        } else if (marker.type === "bear") {
+          output.save();
+          output.textAlign = "center";
+          output.textBaseline = "middle";
+          output.fillStyle = "#ff7a4f";
+          output.font = `700 34px ${EXPORT_FONT_FAMILY}`;
+          output.fillText("◎", center.x, center.y - 15);
+          output.restore();
+          drawCenteredMarkerText(
+            output,
+            marker.name,
+            center.x,
+            center.y + 19,
+            markerWidth - 12,
+            20,
+          );
+        } else {
+          drawCenteredMarkerText(
+            output,
+            marker.name,
+            center.x,
+            center.y,
+            markerWidth - 12,
+            20,
+          );
+        }
+      });
+
+    const footerTop = contentSize;
+    output.fillStyle = "rgba(6, 12, 18, .96)";
+    output.fillRect(0, footerTop, canvas.width, EXPORT_FOOTER_HEIGHT);
+    output.strokeStyle = "rgba(37, 55, 70, .92)";
+    output.beginPath();
+    output.moveTo(0, footerTop + 0.5);
+    output.lineTo(canvas.width, footerTop + 0.5);
+    output.stroke();
     const watermarkTitleSize = 20;
-    output.font = `700 ${watermarkTitleSize}px Arial`;
+    output.font = `700 ${watermarkTitleSize}px ${EXPORT_FONT_FAMILY}`;
     output.textAlign = "left";
     output.fillStyle = "#ffffff";
     output.fillText(
       "熊坑地图编辑器 · Powered by Linglegl",
       28,
-      canvas.height - 50,
+      footerTop + 42,
     );
-    output.font = "600 24px Arial";
+    output.font = `600 24px ${EXPORT_FONT_FAMILY}`;
     output.fillStyle = "#8194a1";
-    output.fillText("https://map.burgerl.com", 28, canvas.height - 24);
+    output.fillText("https://map.burgerl.com", 28, footerTop + 78);
     output.textAlign = "right";
-    output.font = "600 17px Arial";
+    output.font = `600 17px ${EXPORT_FONT_FAMILY}`;
     output.fillStyle = "#9babb7";
     output.fillText(
       `熊坑坐标 X:${worldX} Y:${worldY} · ${view === "game" ? "游戏内视角" : "垂直视角"}`,
       canvas.width - 28,
-      canvas.height - 42,
+      footerTop + 55,
     );
 
     try {

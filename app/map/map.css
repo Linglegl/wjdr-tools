@@ -464,21 +464,12 @@ button:disabled {
 }
 
 .map-stage.tilted .map-board {
-  width: 100%;
+  width: calc(100% - var(--tilt-inset) - var(--tilt-inset));
   height: auto;
   aspect-ratio: 1;
   box-shadow:
     inset 0 0 60px rgba(0, 0, 0, 0.34),
     28px 34px 54px rgba(0, 0, 0, 0.46);
-  transform: scale(var(--tilt-scale));
-  transform-style: preserve-3d;
-}
-
-.map-stage.tilted .marker,
-.map-stage.tilted .marker > span,
-.map-stage.tilted .marker small {
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
 }
 
 .map-stage.tilted .marker small {
@@ -491,9 +482,8 @@ button:disabled {
 }
 
 .map-stage.tilted .marker-town small {
-  font-size: clamp(9px, 0.9vw, 14px);
-  transform: translate(-50%, -50%) rotateZ(var(--tilt-counter-yaw))
-    translateZ(2px) scale(1.18);
+  font-size: clamp(8px, 0.78vw, 12px);
+  transform: translate(-50%, -50%) rotateZ(var(--tilt-counter-yaw));
 }
 
 .map-stage.tilted .marker-bear > .marker-bear-content {
