@@ -150,8 +150,9 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.doesNotMatch(source, /mapZoom|ZOOM_MIN|ZOOM_MAX|ZOOM_STEP/);
   assert.doesNotMatch(source, /地图缩放|放大地图|缩小地图/);
   assert.doesNotMatch(styles, /zoom-controls/);
-  assert.match(styles, /\.map-stage\.tilted \.map-board[\s\S]*?width: 100%/);
-  assert.doesNotMatch(styles, /--tilt-inset|scale\(var\(--tilt-scale\)\)/);
+  assert.match(styles, /--tilt-fit: 70\.710678%/);
+  assert.match(styles, /\.map-stage\.tilted \.map-board[\s\S]*?width: var\(--tilt-fit\)/);
+  assert.doesNotMatch(styles, /scale\(var\(--tilt-scale\)\)/);
   assert.doesNotMatch(styles, /translateZ\(|backface-visibility/);
   assert.doesNotMatch(source, /output\.scale\(0\.88/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);

@@ -406,6 +406,8 @@ button:disabled {
 }
 
 .map-stage.tilted {
+  --tilt-fit: 70.710678%;
+  --tilt-inset: 14.644661%;
   aspect-ratio: 1;
   place-items: center;
   margin: 18px auto 14px;
@@ -439,7 +441,7 @@ button:disabled {
 }
 
 .map-stage.tilted .map-board {
-  width: 100%;
+  width: var(--tilt-fit);
   height: auto;
   aspect-ratio: 1;
   box-shadow:
@@ -479,15 +481,15 @@ button:disabled {
 }
 
 .map-stage.tilted .axis-x {
-  top: -16px;
-  left: 0;
-  width: 100%;
+  top: calc(var(--tilt-inset) - 16px);
+  left: var(--tilt-inset);
+  width: var(--tilt-fit);
 }
 
 .map-stage.tilted .axis-y {
-  top: 0;
-  left: -18px;
-  height: 100%;
+  top: var(--tilt-inset);
+  left: calc(var(--tilt-inset) - 18px);
+  height: var(--tilt-fit);
 }
 
 .board-corner {
