@@ -387,26 +387,6 @@ button:disabled {
   background: rgba(112, 214, 163, 0.04);
 }
 
-.zoom-controls {
-  display: flex;
-  gap: 0 !important;
-}
-
-.zoom-controls button {
-  min-width: 30px;
-  border-left-width: 0;
-}
-
-.zoom-controls button:first-child {
-  border-left-width: 1px;
-}
-
-.zoom-controls button:nth-child(2) {
-  min-width: 48px;
-  color: var(--muted);
-  font-family: Consolas, monospace;
-}
-
 .map-viewport {
   min-width: 0;
   overflow: auto;

@@ -58,9 +58,6 @@ const EXPORT_AXIS_GUTTER = 44;
 const EXPORT_FOOTER_HEIGHT = 108;
 const EXPORT_FONT_FAMILY =
   '"Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
-const ZOOM_MIN = 0.7;
-const ZOOM_MAX = 1.6;
-const ZOOM_STEP = 0.1;
 const RINGS: Ring[] = [1, 2, 3, 4, 5];
 const DEFAULT_RING_COLORS: Record<Ring, string> = {
   1: "#ff6b4a",
@@ -370,7 +367,6 @@ export default function Home() {
   const [showTowns, setShowTowns] = useState(true);
   const [showCoverage, setShowCoverage] = useState(true);
   const [isTilted, setIsTilted] = useState(false);
-  const [mapZoom, setMapZoom] = useState(1);
   const [worldX, setWorldX] = useState(512);
   const [worldY, setWorldY] = useState(512);
   const [history, setHistory] = useState<Marker[][]>([]);
@@ -402,10 +398,6 @@ export default function Home() {
       ? { ...flag, ...dragPreview }
       : flag,
   );
-  const mapStageWidth = isTilted
-    ? `min(${96 * mapZoom}vh, calc(${100 * mapZoom}% - 12px))`
-    : `min(${80 * mapZoom}vh, calc(${100 * mapZoom}% - 64px))`;
-
   const coordinateRows = useMemo(
     () =>
       towns.map((town) => ({
@@ -458,15 +450,6 @@ export default function Home() {
     setMarkers(deepCopy(next));
     setFuture((items) => items.slice(1));
     setSelectedId(null);
-  }
-
-  function changeZoom(delta: number) {
-    setMapZoom((value) =>
-      Math.max(
-        ZOOM_MIN,
-        Math.min(ZOOM_MAX, Math.round((value + delta) * 10) / 10),
-      ),
-    );
   }
 
   function placeAt(
@@ -1066,7 +1049,6 @@ export default function Home() {
           worldY?: number;
           activeTownRing?: Ring;
           isTilted?: boolean;
-          mapZoom?: number;
           version?: number;
         };
         if (Array.isArray(data.markers)) {
@@ -1083,13 +1065,6 @@ export default function Home() {
         }
         if (typeof data.isTilted === "boolean") {
           setIsTilted(data.isTilted);
-        }
-        if (
-          Number.isFinite(data.mapZoom) &&
-          Number(data.mapZoom) >= ZOOM_MIN &&
-          Number(data.mapZoom) <= ZOOM_MAX
-        ) {
-          setMapZoom(Number(data.mapZoom));
         }
       }
       if (savedTemplates) {
@@ -1124,7 +1099,6 @@ export default function Home() {
         worldY,
         activeTownRing,
         isTilted,
-        mapZoom,
       }),
     );
   }, [
@@ -1134,7 +1108,6 @@ export default function Home() {
     worldY,
     activeTownRing,
     isTilted,
-    mapZoom,
   ]);
 
   useEffect(() => {
@@ -1164,7 +1137,7 @@ export default function Home() {
       );
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [isTilted, mapZoom]);
+  }, [isTilted]);
 
   return (
     <main className="app-shell">
@@ -1311,34 +1284,6 @@ export default function Home() {
               >
                 {isTilted ? "垂直视角" : "游戏内视角"}
               </button>
-              <div className="zoom-controls" aria-label="地图缩放">
-                <button
-                  type="button"
-                  onClick={() => changeZoom(-ZOOM_STEP)}
-                  disabled={mapZoom <= ZOOM_MIN}
-                  aria-label="缩小地图"
-                  title="缩小地图"
-                >
-                  −
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMapZoom(1)}
-                  aria-label={`重置地图缩放，当前 ${Math.round(mapZoom * 100)}%`}
-                  title="重置为 100%"
-                >
-                  {Math.round(mapZoom * 100)}%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => changeZoom(ZOOM_STEP)}
-                  disabled={mapZoom >= ZOOM_MAX}
-                  aria-label="放大地图"
-                  title="放大地图"
-                >
-                  +
-                </button>
-              </div>
             </div>
           </div>
 
@@ -1349,9 +1294,7 @@ export default function Home() {
                 {
                   "--tilt-yaw": `${TILT_YAW_DEGREES}deg`,
                   "--tilt-counter-yaw": `${TILT_COUNTER_YAW_DEGREES}deg`,
-                  "--tilt-scale": TILT_SCALE,
                   "--tilt-inset": `${TILT_INSET_PERCENT}%`,
-                  "--map-stage-width": mapStageWidth,
                 } as React.CSSProperties
               }
             >

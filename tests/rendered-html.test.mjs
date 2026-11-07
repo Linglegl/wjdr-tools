@@ -146,6 +146,9 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(source, /markerScreenCenter/);
   assert.match(source, /https:\/\/tools\.burgerl\.com/);
   assert.doesNotMatch(source, /https:\/\/map\.burgerl\.com/);
+  assert.doesNotMatch(source, /mapZoom|ZOOM_MIN|ZOOM_MAX|ZOOM_STEP/);
+  assert.doesNotMatch(source, /地图缩放|放大地图|缩小地图/);
+  assert.doesNotMatch(styles, /zoom-controls/);
   assert.match(styles, /width: calc\(100% - var\(--tilt-inset\)/);
   assert.doesNotMatch(styles, /translateZ\(|backface-visibility/);
   assert.doesNotMatch(source, /output\.scale\(0\.88/);
