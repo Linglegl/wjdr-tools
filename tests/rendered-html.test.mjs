@@ -144,6 +144,8 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(source, /const footerTop = contentSize/);
   assert.match(source, /fitCanvasLines/);
   assert.match(source, /markerScreenCenter/);
+  assert.match(source, /https:\/\/tools\.burgerl\.com/);
+  assert.doesNotMatch(source, /https:\/\/map\.burgerl\.com/);
   assert.match(styles, /width: calc\(100% - var\(--tilt-inset\)/);
   assert.doesNotMatch(styles, /translateZ\(|backface-visibility/);
   assert.doesNotMatch(source, /output\.scale\(0\.88/);

@@ -1017,7 +1017,7 @@ export default function Home() {
     );
     output.font = `600 24px ${EXPORT_FONT_FAMILY}`;
     output.fillStyle = "#8194a1";
-    output.fillText("https://map.burgerl.com", 28, footerTop + 78);
+    output.fillText("https://tools.burgerl.com", 28, footerTop + 78);
     output.textAlign = "right";
     output.font = `600 17px ${EXPORT_FONT_FAMILY}`;
     output.fillStyle = "#9babb7";
