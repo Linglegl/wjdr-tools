@@ -382,7 +382,6 @@ export default function Home() {
     y: number;
   } | null>(null);
   const toastTimer = useRef<number | null>(null);
-  const mapViewportRef = useRef<HTMLDivElement | null>(null);
   const imageImportRef = useRef<HTMLInputElement | null>(null);
 
   const selected = markers.find((marker) => marker.id === selectedId) ?? null;
@@ -1121,22 +1120,6 @@ export default function Home() {
     setNativeDragEnabled(finePointer.matches);
   }, []);
 
-  useEffect(() => {
-    const viewport = mapViewportRef.current;
-    if (!viewport) return;
-    const frame = window.requestAnimationFrame(() => {
-      viewport.scrollLeft = Math.max(
-        0,
-        (viewport.scrollWidth - viewport.clientWidth) / 2,
-      );
-      viewport.scrollTop = Math.max(
-        0,
-        (viewport.scrollHeight - viewport.clientHeight) / 2,
-      );
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [isTilted]);
-
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -1285,7 +1268,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="map-viewport" ref={mapViewportRef}>
+          <div className="map-viewport">
             <div
               className={`map-stage ${isTilted ? "tilted" : ""}`}
               style={

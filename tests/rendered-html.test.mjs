@@ -137,8 +137,9 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(source, /微信、QQ 传输或压缩后可能无法使用/);
   assert.match(source, /\(hover: hover\) and \(pointer: fine\)/);
   assert.match(source, /nativeDragEnabled &&/);
-  assert.match(styles, /overscroll-behavior: auto/);
-  assert.match(styles, /touch-action: pan-x pan-y pinch-zoom/);
+  assert.match(styles, /\.map-viewport[\s\S]*?overflow: hidden/);
+  assert.match(styles, /touch-action: pan-y pinch-zoom/);
+  assert.doesNotMatch(source, /mapViewportRef|scrollWidth|scrollHeight/);
   assert.match(styles, /\.marker[\s\S]*?touch-action: manipulation/);
   assert.doesNotMatch(source, /TILT_SCALE|TILT_INSET_PERCENT|--tilt-inset/);
   assert.match(source, /const footerTop = contentSize/);
