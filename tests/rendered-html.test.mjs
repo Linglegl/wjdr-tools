@@ -155,7 +155,8 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(source, /对应熊坑换算的城镇坐标/);
   assert.match(source, /selectedTownCoordinate \? "城镇坐标" : "熊坑坐标"/);
   assert.match(source, /取消选择后可编辑熊坑基准坐标/);
-  assert.match(source, /城镇占地 2×2，取左下角第一格/);
+  assert.doesNotMatch(source, /地图左上列 X|地图左上行 Y|className="footprint-note"/);
+  assert.match(source, /坐标取城镇左下角第一格/);
   assert.match(styles, /\.marker-obstacle/);
   assert.match(styles, /\.town-world-coordinate/);
   assert.match(source, /导出的原始PNG文件可导入重新编辑/);

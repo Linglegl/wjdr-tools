@@ -1572,49 +1572,6 @@ export default function Home() {
                     </div>
                   </div>
                 )}
-                <div className="coordinate-pair">
-                  <label>
-                    <span>地图左上列 X</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max={GRID_SIZE - FOOTPRINT[selected.type].width + 1}
-                      value={selected.x + 1}
-                      onChange={(event) =>
-                        updateSelected({
-                          x: snapMarker(
-                            selected.type,
-                            Number(event.target.value) - 1,
-                            selected.y,
-                          ).x,
-                        })
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>地图左上行 Y</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max={GRID_SIZE - FOOTPRINT[selected.type].height + 1}
-                      value={selected.y + 1}
-                      onChange={(event) =>
-                        updateSelected({
-                          y: snapMarker(
-                            selected.type,
-                            selected.x,
-                            Number(event.target.value) - 1,
-                          ).y,
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-                <p className="footprint-note">
-                  占地 {FOOTPRINT[selected.type].width} ×{" "}
-                  {FOOTPRINT[selected.type].height}
-                  {selected.type === "flag" ? " · 覆盖范围 7 × 7" : ""}
-                </p>
                 <button
                   type="button"
                   className="delete-button"
@@ -1652,7 +1609,7 @@ export default function Home() {
                   {selectedTownCoordinate.worldY}
                 </strong>
                 <small>
-                  城镇占地 2×2，取左下角第一格；取消选择后可编辑熊坑基准坐标
+                  坐标取城镇左下角第一格；取消选择后可编辑熊坑基准坐标
                 </small>
               </div>
             ) : (

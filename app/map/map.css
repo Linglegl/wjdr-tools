@@ -1001,13 +1001,6 @@ button:disabled {
   gap: 8px;
 }
 
-.footprint-note {
-  margin: -1px 0 2px;
-  color: var(--faint);
-  font-family: Consolas, monospace;
-  font-size: 9px;
-}
-
 .delete-button {
   border-color: rgba(255, 126, 112, 0.25);
   background: rgba(255, 126, 112, 0.04);
