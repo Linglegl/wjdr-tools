@@ -216,7 +216,7 @@ function townWorldCoordinate(
   const townBottomLeftY = town.y + FOOTPRINT.town.height - 1;
   return {
     worldX: worldX + townBottomLeftX - bearBottomLeftX,
-    worldY: worldY + townBottomLeftY - bearBottomLeftY,
+    worldY: worldY + bearBottomLeftY - townBottomLeftY,
   };
 }
 
@@ -1579,7 +1579,7 @@ export default function Home() {
                       X:{selectedTownCoordinate.worldX} · Y:
                       {selectedTownCoordinate.worldY}
                     </strong>
-                    <small>城镇占地 2×2，固定取左下角第一个坐标</small>
+                    <small>城镇占地 2×2，固定取左下角第一格；世界 Y 向上递增</small>
                   </div>
                 )}
                 <div className="coordinate-pair">
@@ -1647,7 +1647,7 @@ export default function Home() {
               <span>02</span>
               <div>
                 <h2>熊坑坐标</h2>
-                <p>熊坑占地 3×3，固定取左下角第一格</p>
+                <p>熊坑占地 3×3，取左下角第一格；世界 Y 向上递增</p>
               </div>
             </div>
             <div className="coordinate-pair world-coordinate">
