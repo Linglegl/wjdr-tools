@@ -141,6 +141,9 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(source, /function townWorldCoordinate/);
   assert.match(source, /const townBottomLeftX = town\.x/);
   assert.match(source, /const townBottomLeftY = town\.y \+ FOOTPRINT\.town\.height - 1/);
+  assert.match(source, /const bearBottomLeftX = bearMarker\.x/);
+  assert.match(source, /const bearBottomLeftY = bearMarker\.y \+ FOOTPRINT\.bear\.height - 1/);
+  assert.match(source, /熊坑占地 3×3，固定取左下角第一格/);
   assert.match(source, /对应熊坑换算的城镇坐标/);
   assert.match(source, /固定取左下角第一个坐标/);
   assert.match(styles, /\.marker-obstacle/);

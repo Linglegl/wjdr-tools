@@ -210,13 +210,13 @@ function townWorldCoordinate(
   worldY: number,
 ) {
   const bearMarker = bear ?? FIXED_BEAR;
-  const bearCenterX = bearMarker.x + Math.floor(FOOTPRINT.bear.width / 2);
-  const bearCenterY = bearMarker.y + Math.floor(FOOTPRINT.bear.height / 2);
+  const bearBottomLeftX = bearMarker.x;
+  const bearBottomLeftY = bearMarker.y + FOOTPRINT.bear.height - 1;
   const townBottomLeftX = town.x;
   const townBottomLeftY = town.y + FOOTPRINT.town.height - 1;
   return {
-    worldX: worldX + townBottomLeftX - bearCenterX,
-    worldY: worldY + townBottomLeftY - bearCenterY,
+    worldX: worldX + townBottomLeftX - bearBottomLeftX,
+    worldY: worldY + townBottomLeftY - bearBottomLeftY,
   };
 }
 
@@ -1033,7 +1033,7 @@ export default function Home() {
     output.font = `600 17px ${EXPORT_FONT_FAMILY}`;
     output.fillStyle = "#9babb7";
     output.fillText(
-      `熊坑坐标 X:${worldX} Y:${worldY} · ${view === "game" ? "游戏内视角" : "垂直视角"}`,
+      `熊坑左下角坐标 X:${worldX} Y:${worldY} · ${view === "game" ? "游戏内视角" : "垂直视角"}`,
       canvas.width - 28,
       footerTop + 55,
     );
@@ -1647,12 +1647,12 @@ export default function Home() {
               <span>02</span>
               <div>
                 <h2>熊坑坐标</h2>
-                <p>作为城镇左下角坐标的换算基准</p>
+                <p>熊坑占地 3×3，固定取左下角第一格</p>
               </div>
             </div>
             <div className="coordinate-pair world-coordinate">
               <label>
-                <span>世界 X</span>
+                <span>左下角世界 X</span>
                 <input
                   type="number"
                   value={worldX}
@@ -1660,7 +1660,7 @@ export default function Home() {
                 />
               </label>
               <label>
-                <span>世界 Y</span>
+                <span>左下角世界 Y</span>
                 <input
                   type="number"
                   value={worldY}
