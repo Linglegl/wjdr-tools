@@ -133,6 +133,18 @@ test("renders the bear map editor with touch-friendly marker editing", async () 
   assert.match(html, /地图工具/);
   assert.match(html, /生成图片/);
   assert.match(html, /导入图片/);
+  assert.match(html, /障碍/);
+  assert.match(source, /type MarkerType = "bear" \| "town" \| "flag" \| "mine" \| "obstacle"/);
+  assert.match(source, /obstacle: \{ width: 1, height: 1 \}/);
+  assert.match(source, /MAX_IMPORTED_MARKERS = GRID_SIZE \* GRID_SIZE \+ 1/);
+  assert.match(source, /绘制山地或水域/);
+  assert.match(source, /function townWorldCoordinate/);
+  assert.match(source, /const townBottomLeftX = town\.x/);
+  assert.match(source, /const townBottomLeftY = town\.y \+ FOOTPRINT\.town\.height - 1/);
+  assert.match(source, /对应熊坑换算的城镇坐标/);
+  assert.match(source, /固定取左下角第一个坐标/);
+  assert.match(styles, /\.marker-obstacle/);
+  assert.match(styles, /\.town-world-coordinate/);
   assert.match(source, /导出的原始PNG文件可导入重新编辑/);
   assert.match(source, /微信、QQ 传输或压缩后可能无法使用/);
   assert.match(source, /\(hover: hover\) and \(pointer: fine\)/);

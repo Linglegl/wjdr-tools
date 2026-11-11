@@ -8,7 +8,7 @@ import {
   extractMapDataFromPng,
 } from "./png-map-metadata";
 
-type MarkerType = "bear" | "town" | "flag" | "mine";
+type MarkerType = "bear" | "town" | "flag" | "mine" | "obstacle";
 type PlaceableMarkerType = Exclude<MarkerType, "bear">;
 type Tool = "select" | PlaceableMarkerType | "erase";
 type Ring = 1 | 2 | 3 | 4 | 5;
@@ -43,11 +43,17 @@ const STORAGE_KEY = "bear-map-editor-v1";
 const TEMPLATE_KEY = "bear-map-templates-v1";
 const DATA_VERSION = 2;
 const MAX_IMAGE_IMPORT_BYTES = 10 * 1024 * 1024;
-const MAX_IMPORTED_MARKERS = 500;
+const MAX_IMPORTED_MARKERS = GRID_SIZE * GRID_SIZE + 1;
 const MAX_MARKER_ID_LENGTH = 100;
 const MAX_MARKER_NAME_LENGTH = 18;
 const MAX_WORLD_COORDINATE = 1_000_000_000;
-const MARKER_TYPES: MarkerType[] = ["bear", "town", "flag", "mine"];
+const MARKER_TYPES: MarkerType[] = [
+  "bear",
+  "town",
+  "flag",
+  "mine",
+  "obstacle",
+];
 const FLAG_RANGE = 3;
 const TILT_YAW_DEGREES = -45;
 const TILT_COUNTER_YAW_DEGREES = -TILT_YAW_DEGREES;
@@ -69,6 +75,7 @@ const FOOTPRINT: Record<MarkerType, { width: number; height: number }> = {
   town: { width: 2, height: 2 },
   bear: { width: 3, height: 3 },
   mine: { width: 2, height: 2 },
+  obstacle: { width: 1, height: 1 },
 };
 
 const TOOL_ITEMS: { id: Tool; label: string; symbol: string; hint: string }[] = [
@@ -76,6 +83,7 @@ const TOOL_ITEMS: { id: Tool; label: string; symbol: string; hint: string }[] = 
   { id: "town", label: "城镇", symbol: "▦", hint: "放置联盟成员" },
   { id: "flag", label: "旗帜", symbol: "⚑", hint: "标记覆盖范围" },
   { id: "mine", label: "联盟矿", symbol: "⛏", hint: "放置资源点" },
+  { id: "obstacle", label: "障碍", symbol: "◆", hint: "绘制山地或水域" },
   { id: "erase", label: "擦除", symbol: "×", hint: "点击删除" },
 ];
 
@@ -84,6 +92,7 @@ const TYPE_LABEL: Record<MarkerType, string> = {
   town: "城镇",
   flag: "联盟旗帜",
   mine: "联盟矿",
+  obstacle: "障碍",
 };
 
 const FIXED_BEAR: Marker = {
@@ -190,7 +199,25 @@ function markerSymbol(type: MarkerType) {
   if (type === "bear") return "◎";
   if (type === "flag") return "⚑";
   if (type === "mine") return "⛏";
+  if (type === "obstacle") return "◆";
   return "▦";
+}
+
+function townWorldCoordinate(
+  town: Marker,
+  bear: Marker | null,
+  worldX: number,
+  worldY: number,
+) {
+  const bearMarker = bear ?? FIXED_BEAR;
+  const bearCenterX = bearMarker.x + Math.floor(FOOTPRINT.bear.width / 2);
+  const bearCenterY = bearMarker.y + Math.floor(FOOTPRINT.bear.height / 2);
+  const townBottomLeftX = town.x;
+  const townBottomLeftY = town.y + FOOTPRINT.town.height - 1;
+  return {
+    worldX: worldX + townBottomLeftX - bearCenterX,
+    worldY: worldY + townBottomLeftY - bearCenterY,
+  };
 }
 
 function drawFlagIcon(
@@ -399,25 +426,14 @@ export default function Home() {
     () =>
       towns.map((town) => ({
         ...town,
-        worldX:
-          worldX +
-          Math.round(
-            (town.x +
-              FOOTPRINT.town.width / 2 -
-              ((bear?.x ?? 11) + FOOTPRINT.bear.width / 2)) *
-              2,
-          ),
-        worldY:
-          worldY +
-          Math.round(
-            (town.y +
-              FOOTPRINT.town.height / 2 -
-              ((bear?.y ?? 11) + FOOTPRINT.bear.height / 2)) *
-              2,
-          ),
+        ...townWorldCoordinate(town, bear, worldX, worldY),
       })),
     [bear, towns, worldX, worldY],
   );
+  const selectedTownCoordinate =
+    selected?.type === "town"
+      ? townWorldCoordinate(selected, bear, worldX, worldY)
+      : null;
 
   function notify(message: string) {
     setToast(message);
@@ -488,8 +504,12 @@ export default function Home() {
       return;
     }
     commit([...markers, marker]);
-    setSelectedId(marker.id);
-    setTool("select");
+    if (tool === "obstacle") {
+      setSelectedId(null);
+    } else {
+      setSelectedId(marker.id);
+      setTool("select");
+    }
   }
 
   function boardPoint(
@@ -727,7 +747,7 @@ export default function Home() {
     const text = coordinateRows
       .map(
         (town) =>
-          `${town.name}  X:${town.worldX}  Y:${town.worldY}（格 ${town.x + 1},${town.y + 1}）`,
+          `${town.name}  X:${town.worldX}  Y:${town.worldY}（2×2 左下角首格）`,
       )
       .join("\n");
     try {
@@ -806,6 +826,9 @@ export default function Home() {
         } else if (marker.type === "mine") {
           ctx.fillStyle = "#282214";
           ctx.strokeStyle = "rgba(240, 196, 109, .54)";
+        } else if (marker.type === "obstacle") {
+          ctx.fillStyle = "#243944";
+          ctx.strokeStyle = "rgba(132, 178, 186, .68)";
         } else {
           const bearGradient = ctx.createRadialGradient(
             cx,
@@ -949,6 +972,14 @@ export default function Home() {
           output.shadowColor = "rgba(0, 0, 0, .78)";
           output.shadowBlur = 4;
           output.fillText("⛏", center.x, center.y + 2);
+          output.restore();
+        } else if (marker.type === "obstacle") {
+          output.save();
+          output.fillStyle = "#9ec5ca";
+          output.font = `700 ${Math.round(Math.min(markerWidth, markerHeight) * 0.46)}px ${EXPORT_FONT_FAMILY}`;
+          output.textAlign = "center";
+          output.textBaseline = "middle";
+          output.fillText("◆", center.x, center.y + 1);
           output.restore();
         } else if (marker.type === "bear") {
           output.save();
@@ -1459,6 +1490,10 @@ export default function Home() {
                       <span className="marker-mine-glyph" aria-hidden="true">
                         ⛏
                       </span>
+                    ) : marker.type === "obstacle" ? (
+                      <span className="marker-obstacle-glyph" aria-hidden="true">
+                        ◆
+                      </span>
                     ) : marker.type === "bear" ? (
                       <span className="marker-bear-content">
                         <span className="marker-bear-symbol" aria-hidden="true">
@@ -1537,9 +1572,19 @@ export default function Home() {
                     </div>
                   </div>
                 )}
+                {selectedTownCoordinate && (
+                  <div className="town-world-coordinate">
+                    <span>对应熊坑换算的城镇坐标</span>
+                    <strong>
+                      X:{selectedTownCoordinate.worldX} · Y:
+                      {selectedTownCoordinate.worldY}
+                    </strong>
+                    <small>城镇占地 2×2，固定取左下角第一个坐标</small>
+                  </div>
+                )}
                 <div className="coordinate-pair">
                   <label>
-                    <span>左上列 X</span>
+                    <span>地图左上列 X</span>
                     <input
                       type="number"
                       min="1"
@@ -1557,7 +1602,7 @@ export default function Home() {
                     />
                   </label>
                   <label>
-                    <span>左上行 Y</span>
+                    <span>地图左上行 Y</span>
                     <input
                       type="number"
                       min="1"
@@ -1592,7 +1637,7 @@ export default function Home() {
               <div className="no-selection">
                 <span>↖</span>
                 <strong>尚未选择对象</strong>
-                <p>点击地图中的城镇、旗帜或熊坑查看属性。</p>
+                <p>点击地图中的城镇、旗帜、联盟矿或障碍物查看属性。</p>
               </div>
             )}
           </section>
@@ -1602,7 +1647,7 @@ export default function Home() {
               <span>02</span>
               <div>
                 <h2>熊坑坐标</h2>
-                <p>用于换算所有城镇坐标</p>
+                <p>作为城镇左下角坐标的换算基准</p>
               </div>
             </div>
             <div className="coordinate-pair world-coordinate">
@@ -1727,7 +1772,7 @@ export default function Home() {
       <footer>
         <p>
           <span>使用提示</span>
-          熊坑固定在中心；添加旗帜与城镇后，拖动对象即可微调布阵。
+          熊坑固定在中心；障碍物可按 1×1 单格连续放置，拼接山地或水域。
         </p>
         <p>Powered by Linglegl</p>
       </footer>
