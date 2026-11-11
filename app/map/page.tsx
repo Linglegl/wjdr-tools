@@ -1572,16 +1572,6 @@ export default function Home() {
                     </div>
                   </div>
                 )}
-                {selectedTownCoordinate && (
-                  <div className="town-world-coordinate">
-                    <span>对应熊坑换算的城镇坐标</span>
-                    <strong>
-                      X:{selectedTownCoordinate.worldX} · Y:
-                      {selectedTownCoordinate.worldY}
-                    </strong>
-                    <small>城镇占地 2×2，固定取左下角第一格；世界 Y 向上递增</small>
-                  </div>
-                )}
                 <div className="coordinate-pair">
                   <label>
                     <span>地图左上列 X</span>
@@ -1646,28 +1636,45 @@ export default function Home() {
             <div className="section-heading">
               <span>02</span>
               <div>
-                <h2>熊坑坐标</h2>
-                <p>熊坑占地 3×3，取左下角第一格；世界 Y 向上递增</p>
+                <h2>{selectedTownCoordinate ? "城镇坐标" : "熊坑坐标"}</h2>
+                <p>
+                  {selectedTownCoordinate
+                    ? "对应熊坑换算的城镇坐标"
+                    : "熊坑占地 3×3，取左下角第一格；世界 Y 向上递增"}
+                </p>
               </div>
             </div>
-            <div className="coordinate-pair world-coordinate">
-              <label>
-                <span>左下角世界 X</span>
-                <input
-                  type="number"
-                  value={worldX}
-                  onChange={(event) => setWorldX(Number(event.target.value))}
-                />
-              </label>
-              <label>
-                <span>左下角世界 Y</span>
-                <input
-                  type="number"
-                  value={worldY}
-                  onChange={(event) => setWorldY(Number(event.target.value))}
-                />
-              </label>
-            </div>
+            {selectedTownCoordinate ? (
+              <div className="town-world-coordinate">
+                <span>对应熊坑换算的城镇坐标</span>
+                <strong>
+                  X:{selectedTownCoordinate.worldX} · Y:
+                  {selectedTownCoordinate.worldY}
+                </strong>
+                <small>
+                  城镇占地 2×2，取左下角第一格；取消选择后可编辑熊坑基准坐标
+                </small>
+              </div>
+            ) : (
+              <div className="coordinate-pair world-coordinate">
+                <label>
+                  <span>左下角世界 X</span>
+                  <input
+                    type="number"
+                    value={worldX}
+                    onChange={(event) => setWorldX(Number(event.target.value))}
+                  />
+                </label>
+                <label>
+                  <span>左下角世界 Y</span>
+                  <input
+                    type="number"
+                    value={worldY}
+                    onChange={(event) => setWorldY(Number(event.target.value))}
+                  />
+                </label>
+              </div>
+            )}
             <div className="coordinate-summary">
               <div>
                 <strong>{towns.length}</strong>
